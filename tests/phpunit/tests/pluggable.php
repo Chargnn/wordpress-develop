@@ -354,4 +354,33 @@ class Tests_Pluggable extends WP_UnitTestCase {
 
 		$this->assertSame( $current_user, $from_get_user_by );
 	}
+
+	/**
+	 * @ticket 55194
+	 * @covers ::wp_rand
+	 */
+	function test_wp_rand_range() {
+		// Range of 0, 0 must return 0
+		$this->assertEquals( 0, wp_rand( 0, 0 ) );
+
+		// Random between 1 and 99 must be between these numbers
+		$min = 1;
+		$max = 99;
+
+		$this->assertLessThan( 100, wp_rand( $min, $max ) );
+		$this->assertGreaterThan( 0, wp_rand( $min, $max ) );
+
+		// Range with minimum number must return a positive number
+		$min = -99;
+		$max = -1;
+
+		$this->assertLessThan( 100, wp_rand( $min, $max ) );
+		$this->assertGreaterThan( 0, wp_rand( $min, $max ) );
+
+		// Range with numbers greater than PHP_INT_MAX must not overflow
+		$min = PHP_INT_MAX + 1;
+		$max = PHP_INT_MAX + 1;
+
+		$this->assertEquals( PHP_INT_MAX, wp_rand( $min, $max ) );
+	}
 }
